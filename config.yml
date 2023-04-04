@@ -1,0 +1,40 @@
+---
+globals:
+  root_path: git/root_folder/folder/
+...
+
+---
+paths:
+  data:
+    root: /Dropbox/Brain/data/root_folder/folder/
+    folders:
+      acquisitions: acq/
+      processed: proc/
+      results: res/
+      dbs: db/
+...
+
+---
+blocks:
+  block:1:
+    load:
+      tables: 
+        db0:
+          name  : fname
+          ext   : ext
+          sheets:
+            - sheet 1
+            - sheet 2
+          var select: all
+    save:   
+      tables:
+        data:
+          name  : fname_2
+          ext   : xlsx          
+...
+
+---
+variables:
+  tables: pass
+  rename: pass
+...
