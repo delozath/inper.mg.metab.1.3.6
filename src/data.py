@@ -1,10 +1,11 @@
-import numpy as np
-import pdb
-
 import os
 
-import ntxter
+import numpy  as np
+import pandas as pd
+import pdb
 
+
+import ntxter
 from ntxter.data.save      import to_excel, append_excel
 from ntxter.data.loader    import load   as loader
 from ntxter.data.datatools import common
@@ -27,7 +28,6 @@ class ntxter_load:
     @classmethod
     def table_sheets(cls, path, bkname, db='db0'):
         inst = cls(path, bkname)
-        pdb.set_trace()
         #
         db_name = inst.cfg['block']['load']['tables'][db]
         sheets  = db_name.pop('sheets')
@@ -51,3 +51,47 @@ class ntxter_load:
                       .join(vars_d)
         #
         self.vars = vars_
+
+class transform:
+    def __init__(self, data, join, loader) -> None:
+        self.data   = data
+        self.join   = join
+        self.loader = loader
+    #
+    def to_long_format(self):
+        data = self.data.set_index('Expediente INPer')\
+                        .drop(columns='Folio OBESO')
+        #
+        key  = 'cons'
+        join = self.join.query("group==@key")
+        cons = self._get_db_segment(key, data, join).drop(columns='time')
+        #
+        df = []
+        for key in [0, 1, 3, 6]:
+            join = self.join.query("group==@key")
+            #df.append()
+            tmp = self._get_db_segment(key, data, join)\
+                      .join(cons)
+            df.append(tmp)
+        #
+        df = pd.concat(df)#
+        fname = self.loader.cfg['block']['save']['tables']['data']
+        fname = '.'.join([*fname.values()])
+        path  = self.loader.paths['dbs']
+        append_excel(path + fname, {'long_format_db': df.reset_index()})
+        print("File saved")
+        pdb.set_trace()
+        #    
+    #
+    def _get_db_segment(self, key, data, join):
+        vnames = dict(
+                    zip(*join[['variable', 'rename']]\
+                            .to_dict(orient='list')\
+                            .values()
+                        )
+                    )
+        #
+        tmp = data[[*vnames.keys()]].rename(columns=vnames)
+        tmp['time'] = key
+        #
+        return tmp

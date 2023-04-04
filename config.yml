@@ -1,12 +1,12 @@
 ---
 globals:
-  root_path: git/root_folder/folder/
+  root_path: git/analysis_datos/inper.mg.metab.1.3.6/
 ...
 
 ---
 paths:
   data:
-    root: /Dropbox/Brain/data/root_folder/folder/
+    root: /Dropbox/Brain/data/inper/mg_metab_136m_2023/
     folders:
       acquisitions: acq/
       processed: proc/
@@ -16,21 +16,36 @@ paths:
 
 ---
 blocks:
-  block:1:
+  block:lmm:
     load:
       tables: 
         db0:
-          name  : fname
-          ext   : ext
+          name  : ORP 2023 MG Metab 136m
+          ext   : xlsx
           sheets:
-            - sheet 1
-            - sheet 2
+            - long_format_db
           var select: all
     save:   
       tables:
         data:
-          name  : fname_2
-          ext   : xlsx          
+          name  : ORP 2023 MG Metab 136m
+          ext   : xlsx   
+  #
+  block:1:
+    load:
+      tables: 
+        db0:
+          name  : ORP 2023 MG Metab 136m
+          ext   : xlsx
+          sheets:
+            - Crecimiento
+            - join
+          var select: all
+    save:   
+      tables:
+        data:
+          name  : ORP 2023 MG Metab 136m
+          ext   : xlsx       
 ...
 
 ---

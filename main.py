@@ -15,22 +15,30 @@ def main():
     load()
 #
 def load():
-    block = 'block:p1'
-    loader  = src.data.Load.table_sheets(SELF_PATH+'src/', block)
-    loader.group_vars()
-    loader.ptc_scrubbing_less()
-    #data, vars_ = loader.tables['data'], loader.tables['data_vars_sel']
-    model = src\
-            .model_non_linear\
-            .rbf_regression\
-            .ft_sel_init(loader.data, 
-                         loader.vars,
-                         loader.cfg,
-                         stage='pca')
-    model.run()
+    proc = {'preproc to long format': prec_to_long_format,
+            'test before quarto send': test_quarto}
+    #
+    steps = ['test before quarto send']
+    for s in steps:
+        print(f"Processing step [{s}]-->\n")
+        proc[s]()
+    #
     pdb.set_trace()
 
-
+def test_quarto():
+    block = 'block:lmm'
+    loader  = src.data.ntxter_load.table_sheets(SELF_PATH, block)
+    data    = loader.tables['long_format_db']
+    pdb.set_trace()
+#
+def prec_to_long_format():
+    block = 'block:1'
+    loader  = src.data.ntxter_load.table_sheets(SELF_PATH, block)
+    data    = loader.tables['Crecimiento']
+    join    = loader.tables['join']
+    #
+    trans = src.data.transform(data, join, loader)
+    trans.to_long_format()
 #
 if __name__ == '__main__':
     # cd "../"

@@ -1,0 +1,81 @@
+---
+title: "mg_metab_2023"
+format: html
+editor: visual
+---
+
+```{r}
+library(dplyr)
+library(knitr)
+library(reticulate)
+#library(lme4)
+library(lmerTest)
+library(magrittr)
+library(kableExtra)
+```
+
+```{python}
+import os
+import numpy as np
+import pandas as pd
+```
+
+```{python}
+data_path = (f"~/Dropbox/Brain/data/inper/mg_metab_136m_2023/db/")
+fname = "ORP 2023 MG Metab 136m.xlsx"
+fname = os.path.expanduser(data_path) + fname
+fname
+```
+
+```{python}
+data = pd.read_excel(fname, sheet_name='long_format_db')
+data
+```
+```{r}
+modelo_lmm <- lmer(MG_PP ~ time + IMC + SDG_Nacimiento + IMC_preg_Mat + Dx_IMC_preg_Mat + Edad_Mat + G_peso_1T + Dx_G_peso_1T + (1 | Inicio_AC) + (1 + IMC | Sexo), data = py$data, REML = FALSE)
+
+summary(modelo_lmm)
+```
+
+
+```{r}
+modelo_lmm <- lmer(MG_PP ~ time + IMC + SDG_Nacimiento + IMC_preg_Mat + Edad_Mat + Dx_IMC_preg_Mat + G_peso_1T + Dx_G_peso_1T + MG_1T + Inicio_AC + (1 | Expediente_INPer) + (0 + IMC | time) , data = py$data, REML = FALSE)
+
+res <- summary(modelo_lmm)
+table = data.frame(res$coefficients)
+```
+
+```{python}
+np.set_printoptions(suppress=True)
+py_table = r.table.round(3)
+py_table
+```
+
+
+
+
+```{r}
+kable(py$py_table, 
+      caption = "Resultados del modelo mixto de factores aleatorios",
+      digits = 3,
+      align = c("l", rep("c", 6)),
+      col.names = c("Estimate", "SE", "df", "t value", "p-value"),
+      space = "10em"
+    )
+```
+
+
+```{r}
+
+py$py_table %>%
+  setNames(c( "Estimate", "SE", "df", "t value", "p-value")) %>%
+  knitr::kable(booktabs=T) %>%
+  kable_styling(font_size = 14,
+                full_width = FALSE, position = "center", fixed_thead = TRUE,
+                row_label_position = "right")
+```
+
+
+
+
+
