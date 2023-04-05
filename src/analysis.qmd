@@ -29,10 +29,11 @@ fname
 
 ```{python}
 data = pd.read_excel(fname, sheet_name='long_format_db')
-data
+data = data.query('time.isin([0, 1, 3])')
+data.columns
 ```
 ```{r}
-modelo_lmm <- lmer(MG_PP ~ time + IMC + SDG_Nacimiento + IMC_preg_Mat + Dx_IMC_preg_Mat + Edad_Mat + G_peso_1T + Dx_G_peso_1T + (1 | Inicio_AC) + (1 + IMC | Sexo), data = py$data, REML = FALSE)
+modelo_lmm <- lmer(MG_PP ~ time + IMC + porc_MG_1T + LME_3 + (1 + IMC | time), data = py$data, REML = TRUE)
 
 summary(modelo_lmm)
 ```
