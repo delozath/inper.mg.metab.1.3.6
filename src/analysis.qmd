@@ -22,29 +22,53 @@ import pandas as pd
 
 ```{python}
 data_path = (f"~/Dropbox/Brain/data/inper/mg_metab_136m_2023/db/")
-fname = "ORP 2023 MG Metab 136m.xlsx"
+fname = "ORP 2023 MG Metab 136m v2.xlsx"
 fname = os.path.expanduser(data_path) + fname
 fname
 ```
 
 ```{python}
-data = pd.read_excel(fname, sheet_name='long_format_db')
-data = data.query('time.isin([0, 1, 3])')
-data.columns
+data = pd.read_excel(fname, sheet_name=['wide', 'long'])
+wide = data['wide'].set_index('Exp_OBESO')
+long = data['long'].set_index('Exp_OBESO')
+#
+df = long.join(wide, validate='m:1').reset_index()
 ```
+
+
 ```{r}
-modelo_lmm <- lmer(MG_PP ~ time + IMC + porc_MG_1T + LME_3 + (1 + IMC | time), data = py$data, REML = TRUE)
+modelo_lmm <- lmer(MG_kg_PP ~ IMC + C_Abdomen +
+                   IMC_preg_mat	+	Edad_mat	+	porc_MG_mat_1T + GP_mat_3T +
+                   IMC_neon + C_Abdomen_neon + Inicio_AC + LME +
+                   (1 + tiempo | Exp_OBESO) + (1 | Sexo), data = py$df, REML = TRUE)
 
 summary(modelo_lmm)
 ```
 
+```{r}
+modelo_lmm1 <- lmer(C_Abdomen ~ IMC +
+                   IMC_preg_mat	+	Edad_mat	+	porc_MG_mat_1T + GP_mat_3T +
+                   IMC_neon + C_Abdomen_neon + Inicio_AC + LME +
+                   (1 + tiempo | Exp_OBESO), data = py$df, REML = TRUE)
+ 
+summary(modelo_lmm1)
+```
 
 ```{r}
-modelo_lmm <- lmer(MG_PP ~ time + IMC + SDG_Nacimiento + IMC_preg_Mat + Edad_Mat + Dx_IMC_preg_Mat + G_peso_1T + Dx_G_peso_1T + MG_1T + Inicio_AC + (1 | Expediente_INPer) + (0 + IMC | time) , data = py$data, REML = FALSE)
-
-res <- summary(modelo_lmm)
-table = data.frame(res$coefficients)
+modelo_lmm2 <- lmer(C_Abdomen ~ IMC + porc_MG_PP +
+                   IMC_preg_mat	+	Edad_mat	+	porc_MG_mat_1T + GP_mat_3T +
+                   IMC_neon + Inicio_AC + LME +
+                   (1 + tiempo | Exp_OBESO), data = py$df, REML = TRUE)
+ 
+summary(modelo_lmm2)
 ```
+
+```{r}
+model.comparison <- anova(modelo_lmm1, modelo_lmm2)
+ 
+summary(model.comparison)
+```
+
 
 ```{python}
 np.set_printoptions(suppress=True)

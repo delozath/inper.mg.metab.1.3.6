@@ -16,6 +16,22 @@ paths:
 
 ---
 blocks:
+  block:lmm:v2:db:
+    load:
+      tables: 
+        db0:
+          name  : ORP 2023 MG Metab 136m v2
+          ext   : xlsx
+          sheets:
+            - wide
+            - long
+          var select: all
+    save:   
+      tables:
+        data:
+          name  : ORP 2023 MG Metab 136m
+          ext   : xlsx   
+  #
   block:lmm:
     load:
       tables: 
