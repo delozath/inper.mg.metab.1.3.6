@@ -34,12 +34,44 @@ data = pd.read_excel(fname, sheet_name=['wide', 'long'])
 wide = data['wide'].set_index('Exp_OBESO')
 long = data['long'].set_index('Exp_OBESO')
 #
-df = long.join(wide, validate='m:1').reset_index()
+#df = long.join(wide, validate='m:1').reset_index()
 #
 
 cols_mat = ['Peso_preg_mat', 'Talla_mat', 'IMC_preg_mat', 'Dx_IMC_preg_mat', 'Edad_mat', 'MG_mat_1T',
             'porc_MG_mat_1T', 'SDG_3T', 'Peso_mat_3T ', 'GP_mat_3T']
 ```
+
+```{python}
+diff_wide = long.reset_index()[['Exp_OBESO', 'tiempo', 'MG_kg_PP']].pivot_table(index='Exp_OBESO', columns='tiempo')
+diff_wide.columns = ['1M', '3M', '6M']
+
+diff_wide = diff_wide.assign(diff = diff_wide['3M'] - diff_wide['1M'])\
+                   .drop(columns=['1M', '3M', '6M'])
+
+df = wide.join(diff_wide)\
+         .drop(columns='Exp_INPer')\
+         .join(long[['tiempo', 'LME']].pivot(columns='tiempo')[('LME', 2)])
+         
+df.columns = list(df.columns[:-1]) + ['LME_2']
+#
+cols = ['diff', 'Peso_preg_mat', 'Talla_mat', 'IMC_preg_mat',
+        'Dx_IMC_preg_mat', 'Edad_mat', 'MG_mat_1T', 'porc_MG_mat_1T',
+        'SDG_3T', 'Peso_mat_3T', 'GP_mat_3T', 'Peso_neon',
+        'Longitud_neon',  'IMC_neon', 'C_Abdomen_neon', 'LME_2']
+
+df  = df[cols].dropna()
+
+```
+
+
+```{r}
+modelo <- lm( diff ~ IMC_preg_mat + IMC_neon + C_Abdomen_neon + 
+                     LME_2 + GP_mat_3T,
+             data = py$df)
+
+summary(modelo)
+```
+
 
 ```{python}
 famd = prince.FAMD(
